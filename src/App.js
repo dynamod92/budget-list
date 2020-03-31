@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import "./App.css";
 import defaultBudgetItems from "./defaultBudgetItems";
+import { listBills } from "./graphql/queries";
+import Amplify, {
+  Analytics,
+  Storage,
+  API,
+  graphqlOperation
+} from "aws-amplify";
 import {
   Button,
   Form,
@@ -24,10 +31,16 @@ document.onkeydown = function(e) {
   }
 };
 
+API.configure({});
+
 const App = () => {
   let [budgetItems, setBudgetItems] = useState(defaultBudgetItems);
   let [title, setTitle] = useState("");
   let [amount, setAmount] = useState(0);
+
+  API.graphql(graphqlOperation(listBills)).then(allBills =>
+    alert(JSON.stringify(allBills))
+  );
 
   const sumTotalBill = paidStatus => {
     let total = 0;
