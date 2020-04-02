@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import "./App.css";
-import defaultBudgetItems from "./defaultBudgetItems";
+import defaultBudgetItems from "./components/itemList/defaultBudgetItems";
+import { useQuery } from "@apollo/react-hooks";
 import { listBills } from "./graphql/queries";
+import { gql } from "apollo-boost";
 
 import {
   Button,
@@ -26,10 +28,20 @@ document.onkeydown = function(e) {
   }
 };
 
+const listBillsQuery = gql`
+  ${listBills}
+`;
+
 const App = () => {
   let [budgetItems, setBudgetItems] = useState(defaultBudgetItems);
   let [title, setTitle] = useState("");
   let [amount, setAmount] = useState(0);
+
+  const { loading, error, data } = useQuery(listBillsQuery);
+  console.log({ loading, error, data });
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error :(</p>;
 
   const sumTotalBill = paidStatus => {
     let total = 0;
