@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
 import defaultBudgetItems from "./defaultBudgetItems";
-import { listBills } from "./graphql/queries";
-import Amplify, {
-  Analytics,
-  Storage,
-  API,
-  graphqlOperation
-} from "aws-amplify";
 import {
   Button,
   Form,
@@ -31,16 +24,10 @@ document.onkeydown = function(e) {
   }
 };
 
-API.configure({});
-
 const App = () => {
   let [budgetItems, setBudgetItems] = useState(defaultBudgetItems);
   let [title, setTitle] = useState("");
   let [amount, setAmount] = useState(0);
-
-  API.graphql(graphqlOperation(listBills)).then(allBills =>
-    alert(JSON.stringify(allBills))
-  );
 
   const sumTotalBill = paidStatus => {
     let total = 0;
@@ -112,9 +99,9 @@ const App = () => {
         <thead>
           <tr>
             {!paidStatus && <th>Pay dat bill!</th>}
+            {paidStatus && <th>Unpay Bill</th>}
             <th>Bill</th>
             <th>Amount</th>
-            {paidStatus && <th>Unpay Bill</th>}
             <th>Remove</th>
           </tr>
         </thead>
@@ -134,8 +121,6 @@ const App = () => {
                     </span>
                   </td>
                 )}
-                <td key={"title" + item.index}>{item.title}</td>
-                <td key={"amount" + item.index}>${item.amount}</td>
                 {paidStatus && (
                   <td>
                     <span
@@ -148,6 +133,8 @@ const App = () => {
                     </span>
                   </td>
                 )}
+                <td key={"title" + item.index}>{item.title}</td>
+                <td key={"amount" + item.index}>${item.amount}</td>
                 <td key={"remove" + item.index}>
                   <span
                     style={{ marginLeft: "1rem", cursor: "pointer" }}
