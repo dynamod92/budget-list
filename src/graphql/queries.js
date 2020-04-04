@@ -1,10 +1,10 @@
-/* eslint-disable */
-// this is an auto generated file. This will be overwritten
+import { gql } from "apollo-boost";
 
-export const getBill = /* GraphQL */ `
+export const getBill = gql`
   query GetBill($id: ID!) {
     getBill(id: $id) {
       id
+      userId
       name
       month
       paid
@@ -12,7 +12,7 @@ export const getBill = /* GraphQL */ `
     }
   }
 `;
-export const listBills = /* GraphQL */ `
+export const listBills = gql`
   query ListBills(
     $filter: TableBillFilterInput
     $limit: Int
@@ -21,6 +21,7 @@ export const listBills = /* GraphQL */ `
     listBills(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
+        userId
         name
         month
         paid

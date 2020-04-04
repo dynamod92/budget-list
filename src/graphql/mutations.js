@@ -1,10 +1,10 @@
-/* eslint-disable */
-// this is an auto generated file. This will be overwritten
+import { gql } from "apollo-boost";
 
-export const createBill = /* GraphQL */ `
+export const createBill = gql`
   mutation CreateBill($input: CreateBillInput!) {
     createBill(input: $input) {
       id
+      userId
       name
       month
       paid
@@ -12,10 +12,11 @@ export const createBill = /* GraphQL */ `
     }
   }
 `;
-export const updateBill = /* GraphQL */ `
+export const updateBill = gql`
   mutation UpdateBill($input: UpdateBillInput!) {
     updateBill(input: $input) {
       id
+      userId
       name
       month
       paid
@@ -23,10 +24,11 @@ export const updateBill = /* GraphQL */ `
     }
   }
 `;
-export const deleteBill = /* GraphQL */ `
+export const deleteBill = gql`
   mutation DeleteBill($input: DeleteBillInput!) {
     deleteBill(input: $input) {
       id
+      userId
       name
       month
       paid

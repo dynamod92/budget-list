@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { useQuery } from "@apollo/react-hooks";
+import React, { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import "./styles/App.css";
-import defaultBudgetItems from "./data/defaultBudgetItems";
 import { listBills } from "./graphql/queries";
-import { gql } from "apollo-boost";
+import { createBill, updateBill, deleteBill } from "./graphql/mutations";
+import { ulid } from "ulid";
 
 import {
   Button,
@@ -21,27 +21,50 @@ document.onkeydown = function (e) {
   switch (e.which || e.keyCode) {
     case 13:
       document.getElementById("addItem").click();
-      document.getElementById("title").focus();
+      document.getElementById("name").focus();
       break;
     default:
       break;
   }
 };
 
-const listBillsQuery = gql`
-  ${listBills}
-`;
-
 const BudgetApp = () => {
-  let [budgetItems, setBudgetItems] = useState(defaultBudgetItems);
-  let [title, setTitle] = useState("");
+  let [budgetItems, setBudgetItems] = useState([]);
+  let [name, setName] = useState("");
   let [amount, setAmount] = useState(0);
 
-  const { loading, error, data } = useQuery(listBillsQuery);
-  console.log({ loading, error, data });
+  const { loading, error, data } = useQuery(listBills);
+
+  useEffect(() => {
+    if (!loading && !error) {
+      setBudgetItems(data.listBills.items);
+    }
+  }, [loading, error, data]);
+
+  const [updateBillItem] = useMutation(updateBill, {
+    onCompleted: (data) => {
+      console.log(data);
+    },
+    onError: (error) => console.log(error),
+  });
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
+
+  const addBudgetItem = (item) => {
+    createBill({ variables: item });
+  };
+
+  const removeBudgetItem = (item) => {
+    deleteBill({ variables: item });
+  };
+  const setBudgetItemPaid = (item) => {
+    updateBillItem({ variables: { ...item, paid: true } });
+  };
+
+  const setBudgetItemUnpaid = (item) => {
+    updateBillItem({ variables: { ...item, paid: false } });
+  };
 
   const sumTotalBill = (paidStatus) => {
     let total = 0;
@@ -51,27 +74,6 @@ const BudgetApp = () => {
     });
 
     return total;
-  };
-
-  const removeBudgetItem = (index) => {
-    setBudgetItems([...budgetItems.filter((item) => item.index !== index)]);
-  };
-  const setBudgetItemPaid = (index) => {
-    setBudgetItems([
-      ...budgetItems.map((item) => {
-        if (item.index === index) item.paid = true;
-        return item;
-      }),
-    ]);
-  };
-
-  const setBudgetItemUnpaid = (index) => {
-    setBudgetItems([
-      ...budgetItems.map((item) => {
-        if (item.index === index) item.paid = false;
-        return item;
-      }),
-    ]);
   };
 
   const showModal = (alertMessage) => {
@@ -86,27 +88,30 @@ const BudgetApp = () => {
   };
 
   const checkValidity = () => {
-    const { titleValid, amountValid } = {
-      titleValid: title.length > 0,
+    const { nameValid, amountValid } = {
+      nameValid: name.length > 0,
       amountValid: typeof amount == "number",
     };
 
-    if (titleValid === false) {
+    if (nameValid === false) {
       showModal("Don't you want to know what bill you're tracking? 🤔");
     } else if (amountValid === false) {
       showModal("Your bill amount has to be a number 😬");
     } else {
-      setBudgetItems([
-        ...budgetItems,
-        { index: budgetItems.length, title, amount, paid: false },
-      ]);
-      setTitle("");
+      addBudgetItem({
+        id: ulid(),
+        name,
+        amount,
+        paid: false,
+        userId: "test",
+      });
+      setName("");
       setAmount("");
     }
   };
 
   const listBudgetItems = (paidStatus) => {
-    const filteredItems = budgetItems.filter(
+    const filteredItems = data.listBills.items.filter(
       (item) => item.paid === paidStatus
     );
 
@@ -115,48 +120,48 @@ const BudgetApp = () => {
         <thead>
           <tr>
             {!paidStatus && <th>Pay dat bill!</th>}
+            {paidStatus && <th>Unpay Bill</th>}
             <th>Bill</th>
             <th>Amount</th>
-            {paidStatus && <th>Unpay Bill</th>}
             <th>Remove</th>
           </tr>
         </thead>
         <tbody>
           {filteredItems.length > 0 &&
             filteredItems.map((item) => (
-              <tr key={item.index}>
+              <tr key={item.id}>
                 {!paidStatus && (
                   <td>
                     <span
                       style={{ marginLeft: "1rem", cursor: "pointer" }}
                       role="img"
                       aria-label="money-with-wings-emoji"
-                      onClick={(event) => setBudgetItemPaid(item.index)}
+                      onClick={(event) => setBudgetItemPaid(item)}
                     >
                       💸
                     </span>
                   </td>
                 )}
-                <td key={"title" + item.index}>{item.title}</td>
-                <td key={"amount" + item.index}>${item.amount}</td>
                 {paidStatus && (
                   <td>
                     <span
                       style={{ marginLeft: "1rem", cursor: "pointer" }}
                       role="img"
                       aria-label="money-with-wings-emoji"
-                      onClick={(event) => setBudgetItemUnpaid(item.index)}
+                      onClick={(event) => setBudgetItemUnpaid(item)}
                     >
                       🎲
                     </span>
                   </td>
                 )}
-                <td key={"remove" + item.index}>
+                <td key={"name" + item.id}>{item.name}</td>
+                <td key={"amount" + item.id}>${item.amount}</td>
+                <td key={"remove" + item.id}>
                   <span
                     style={{ marginLeft: "1rem", cursor: "pointer" }}
                     role="img"
                     aria-label="red-x-emoji"
-                    onClick={(event) => removeBudgetItem(item.index)}
+                    onClick={(event) => removeBudgetItem(item.id)}
                   >
                     ❌
                   </span>
@@ -195,10 +200,10 @@ const BudgetApp = () => {
                 required
                 type="text"
                 placeholder="item name"
-                name="title"
-                id="title"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
+                name="name"
+                id="name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
               ></Form.Control>
             </Col>
             <Col sm={2}>
