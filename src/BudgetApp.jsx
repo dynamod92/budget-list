@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import "./App.css";
-import defaultBudgetItems from "./components/itemList/defaultBudgetItems";
 import { useQuery } from "@apollo/react-hooks";
+import "./styles/App.css";
+import defaultBudgetItems from "./data/defaultBudgetItems";
 import { listBills } from "./graphql/queries";
 import { gql } from "apollo-boost";
 
@@ -13,10 +13,10 @@ import {
   Container,
   Jumbotron,
   Table,
-  Toast
+  Toast,
 } from "react-bootstrap";
 
-document.onkeydown = function(e) {
+document.onkeydown = function (e) {
   e = e || window.event;
   switch (e.which || e.keyCode) {
     case 13:
@@ -32,7 +32,7 @@ const listBillsQuery = gql`
   ${listBills}
 `;
 
-const App = () => {
+const BudgetApp = () => {
   let [budgetItems, setBudgetItems] = useState(defaultBudgetItems);
   let [title, setTitle] = useState("");
   let [amount, setAmount] = useState(0);
@@ -43,9 +43,9 @@ const App = () => {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
 
-  const sumTotalBill = paidStatus => {
+  const sumTotalBill = (paidStatus) => {
     let total = 0;
-    budgetItems.map(item => {
+    budgetItems.map((item) => {
       if (item.paid === paidStatus) total += item.amount;
       return item;
     });
@@ -53,28 +53,28 @@ const App = () => {
     return total;
   };
 
-  const removeBudgetItem = index => {
-    setBudgetItems([...budgetItems.filter(item => item.index !== index)]);
+  const removeBudgetItem = (index) => {
+    setBudgetItems([...budgetItems.filter((item) => item.index !== index)]);
   };
-  const setBudgetItemPaid = index => {
+  const setBudgetItemPaid = (index) => {
     setBudgetItems([
-      ...budgetItems.map(item => {
+      ...budgetItems.map((item) => {
         if (item.index === index) item.paid = true;
         return item;
-      })
+      }),
     ]);
   };
 
-  const setBudgetItemUnpaid = index => {
+  const setBudgetItemUnpaid = (index) => {
     setBudgetItems([
-      ...budgetItems.map(item => {
+      ...budgetItems.map((item) => {
         if (item.index === index) item.paid = false;
         return item;
-      })
+      }),
     ]);
   };
 
-  const showModal = alertMessage => {
+  const showModal = (alertMessage) => {
     return (
       <Toast>
         <Toast.Header>
@@ -88,7 +88,7 @@ const App = () => {
   const checkValidity = () => {
     const { titleValid, amountValid } = {
       titleValid: title.length > 0,
-      amountValid: typeof amount == "number"
+      amountValid: typeof amount == "number",
     };
 
     if (titleValid === false) {
@@ -98,15 +98,17 @@ const App = () => {
     } else {
       setBudgetItems([
         ...budgetItems,
-        { index: budgetItems.length, title, amount, paid: false }
+        { index: budgetItems.length, title, amount, paid: false },
       ]);
       setTitle("");
       setAmount("");
     }
   };
 
-  const listBudgetItems = paidStatus => {
-    const filteredItems = budgetItems.filter(item => item.paid === paidStatus);
+  const listBudgetItems = (paidStatus) => {
+    const filteredItems = budgetItems.filter(
+      (item) => item.paid === paidStatus
+    );
 
     return (
       <Table style={{ backgroundColor: "white" }}>
@@ -121,7 +123,7 @@ const App = () => {
         </thead>
         <tbody>
           {filteredItems.length > 0 &&
-            filteredItems.map(item => (
+            filteredItems.map((item) => (
               <tr key={item.index}>
                 {!paidStatus && (
                   <td>
@@ -129,7 +131,7 @@ const App = () => {
                       style={{ marginLeft: "1rem", cursor: "pointer" }}
                       role="img"
                       aria-label="money-with-wings-emoji"
-                      onClick={event => setBudgetItemPaid(item.index)}
+                      onClick={(event) => setBudgetItemPaid(item.index)}
                     >
                       💸
                     </span>
@@ -143,7 +145,7 @@ const App = () => {
                       style={{ marginLeft: "1rem", cursor: "pointer" }}
                       role="img"
                       aria-label="money-with-wings-emoji"
-                      onClick={event => setBudgetItemUnpaid(item.index)}
+                      onClick={(event) => setBudgetItemUnpaid(item.index)}
                     >
                       🎲
                     </span>
@@ -154,7 +156,7 @@ const App = () => {
                     style={{ marginLeft: "1rem", cursor: "pointer" }}
                     role="img"
                     aria-label="red-x-emoji"
-                    onClick={event => removeBudgetItem(item.index)}
+                    onClick={(event) => removeBudgetItem(item.index)}
                   >
                     ❌
                   </span>
@@ -196,7 +198,7 @@ const App = () => {
                 name="title"
                 id="title"
                 value={title}
-                onChange={event => setTitle(event.target.value)}
+                onChange={(event) => setTitle(event.target.value)}
               ></Form.Control>
             </Col>
             <Col sm={2}>
@@ -206,7 +208,7 @@ const App = () => {
                 type="number"
                 name="amount"
                 value={amount}
-                onChange={event => setAmount(parseFloat(event.target.value))}
+                onChange={(event) => setAmount(parseFloat(event.target.value))}
               ></Form.Control>
             </Col>
           </Row>
@@ -231,4 +233,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default BudgetApp;
