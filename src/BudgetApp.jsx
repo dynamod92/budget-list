@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import "./App.css";
-import defaultBudgetItems from "./defaultBudgetItems";
+import "./styles/App.css";
+import defaultBudgetItems from "./data/defaultBudgetItems";
 import { listBills } from "./graphql/queries";
 
 import {
@@ -26,7 +26,7 @@ document.onkeydown = function(e) {
   }
 };
 
-const App = () => {
+const BudgetApp = () => {
   let [budgetItems, setBudgetItems] = useState(defaultBudgetItems);
   let [title, setTitle] = useState("");
   let [amount, setAmount] = useState(0);
@@ -219,4 +219,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default BudgetApp;
