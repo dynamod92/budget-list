@@ -3,7 +3,6 @@ import { useQuery, useMutation } from "@apollo/react-hooks";
 import "./styles/App.css";
 import { listBills } from "./graphql/queries";
 import { createBill, updateBill, deleteBill } from "./graphql/mutations";
-import { ulid } from "ulid";
 
 import {
   Button,
@@ -41,7 +40,21 @@ const BudgetApp = () => {
     }
   }, [loading, error, data]);
 
+  const [createBillItem] = useMutation(createBill, {
+    onCompleted: (data) => {
+      console.log(data);
+    },
+    onError: (error) => console.log(error),
+  });
+
   const [updateBillItem] = useMutation(updateBill, {
+    onCompleted: (data) => {
+      console.log(data);
+    },
+    onError: (error) => console.log(error),
+  });
+
+  const [deleteBillItem] = useMutation(deleteBill, {
     onCompleted: (data) => {
       console.log(data);
     },
@@ -52,18 +65,19 @@ const BudgetApp = () => {
   if (error) return <p>Error :(</p>;
 
   const addBudgetItem = (item) => {
-    createBill({ variables: item });
+    console.log(item);
+    createBillItem({ variables: { input: item } });
   };
 
-  const removeBudgetItem = (item) => {
-    deleteBill({ variables: item });
+  const removeBudgetItem = (id) => {
+    deleteBillItem({ variables: { input: { id } } });
   };
-  const setBudgetItemPaid = (item) => {
-    updateBillItem({ variables: { ...item, paid: true } });
+  const setBudgetItemPaid = (id) => {
+    updateBillItem({ variables: { input: { id, paid: true } } });
   };
 
-  const setBudgetItemUnpaid = (item) => {
-    updateBillItem({ variables: { ...item, paid: false } });
+  const setBudgetItemUnpaid = (id) => {
+    updateBillItem({ variables: { input: { id, paid: false } } });
   };
 
   const sumTotalBill = (paidStatus) => {
@@ -99,10 +113,10 @@ const BudgetApp = () => {
       showModal("Your bill amount has to be a number 😬");
     } else {
       addBudgetItem({
-        id: ulid(),
         name,
         amount,
         paid: false,
+        month: '2020-04',
         userId: "test",
       });
       setName("");
@@ -136,7 +150,7 @@ const BudgetApp = () => {
                       style={{ marginLeft: "1rem", cursor: "pointer" }}
                       role="img"
                       aria-label="money-with-wings-emoji"
-                      onClick={(event) => setBudgetItemPaid(item)}
+                      onClick={(event) => setBudgetItemPaid(item.id)}
                     >
                       💸
                     </span>
@@ -148,7 +162,7 @@ const BudgetApp = () => {
                       style={{ marginLeft: "1rem", cursor: "pointer" }}
                       role="img"
                       aria-label="money-with-wings-emoji"
-                      onClick={(event) => setBudgetItemUnpaid(item)}
+                      onClick={(event) => setBudgetItemUnpaid(item.id)}
                     >
                       🎲
                     </span>
