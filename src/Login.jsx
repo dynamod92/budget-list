@@ -2,6 +2,7 @@ import React from "react";
 import { Redirect } from "react-router-dom";
 import LoginForm from "./components/Login/LoginForm";
 import { useOktaAuth } from "@okta/okta-react";
+import OktaSignInWidget from "./components/Login/OktaSignInWidget";
 
 const Login = ({ baseUrl }) => {
   const { authState } = useOktaAuth();
@@ -12,7 +13,7 @@ const Login = ({ baseUrl }) => {
   return authState.isAuthenticated ? (
     <Redirect to={{ pathname: "/" }} />
   ) : (
-    <LoginForm baseUrl={baseUrl} />
+    <OktaSignInWidget baseUrl={baseUrl} />
   );
 };
 
