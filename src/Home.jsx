@@ -1,40 +1,22 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { useOktaAuth } from "@okta/okta-react";
+import { useAuth0 } from "@auth0/auth0-react";
+import BudgetApp from './BudgetApp'
+import CustomApolloProvider from "./providers/customApolloProvider";
 
-const Home = () => {
-  const { authState, authService } = useOktaAuth();
+const Profile = () => {
+  const { user, isAuthenticated, isLoading } = useAuth0();
 
-  if (authState.isPending) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return <div>Loading ...</div>;
   }
 
-  const button = authState.isAuthenticated ? (
-    <button
-      onClick={() => {
-        authService.logout();
-      }}
-    >
-      Logout
-    </button>
-  ) : (
-    <button
-      onClick={() => {
-        authService.login();
-      }}
-    >
-      Login
-    </button>
-  );
-
   return (
-    <div>
-      <Link to="/">Home</Link>
-      <br />
-      <Link to="/protected">Protected</Link>
-      <br />
-      {button}
-    </div>
+    isAuthenticated && (
+      <CustomApolloProvider>
+      <BudgetApp></BudgetApp>
+      </CustomApolloProvider>
+    )
   );
 };
-export default Home;
+
+export default Profile;

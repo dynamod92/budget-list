@@ -1,19 +1,10 @@
 import React from "react";
-import { Redirect } from "react-router-dom";
-import LoginForm from "./components/Login/LoginForm";
-import { useOktaAuth } from "@okta/okta-react";
+import { useAuth0 } from "@auth0/auth0-react";
 
-const Login = ({ baseUrl }) => {
-  const { authState } = useOktaAuth();
+const LoginButton = () => {
+  const { loginWithRedirect } = useAuth0();
 
-  if (authState.isPending) {
-    return <div>Loading...</div>;
-  }
-  return authState.isAuthenticated ? (
-    <Redirect to={{ pathname: "/" }} />
-  ) : (
-    <LoginForm baseUrl={baseUrl} />
-  );
+  return <button onClick={() => loginWithRedirect()}>Log In</button>;
 };
 
-export default Login;
+export default LoginButton;
