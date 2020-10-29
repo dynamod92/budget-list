@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Auth0Provider } from "@auth0/auth0-react";
 import Login from "./Login";
-import CustomApolloProvider from "./providers/customApolloProvider";
 
 ReactDOM.render(
   <Auth0Provider
